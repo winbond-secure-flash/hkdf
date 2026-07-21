@@ -14,6 +14,15 @@ To help you get up and running with our crypto product as quickly as possible, w
 These are the code examples given in the IETF RFC6234:
   http://tools.ietf.org/html/rfc6234
 
+## Production Requirements
+
+
+We strongly recommend replacing this reference module with source that meets the following criteria:
+
+1. **DPA Protection:** Use implementation that includes explicit countermeasures against Differential Power Analysis (DPA).
+ 
+2. **Well Maintened:** Source your cryptographic primitives from actively maintained, rigorously audited libraries to ensure continuous protection against newly discovered vulnerabilities.
+
 
 ## How W77Q Key Derivation works
 
@@ -22,7 +31,7 @@ All W77Q chip keys are derived using HKDF with SHA-256. The two inputs are:
 - **Secret** – A 128-bit OEM secret key provided by the user
 - **WID** – The unique Winbond chip ID read from the chip
 
-HKDF uses the secret as input keying material (**IKM**) and the **WID** as salt to produce a deterministic key stream. Each 128-bit chunk of the output maps to a specific key according to the following layout (per die):
+HKDF uses the secret as input keying material (**IKM**) and the **WID** as salt to produce a deterministic key stream. Each 128-bit chunk of the output maps to a specific key according to the following **sample** ( oem can change it according to his requirements) layout:
 
 | Offset | Key |
 |--------|-----|
