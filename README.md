@@ -24,14 +24,40 @@ We strongly recommend replacing this reference module with source that meets the
 2. **Well Maintened:** Source your cryptographic primitives from actively maintained, rigorously audited libraries to ensure continuous protection against newly discovered vulnerabilities.
 
 
-## How W77Q Key Derivation works
 
-All W77Q chip keys are derived using HKDF with SHA-256. The two inputs are:
+## Key Stream API
+
+The key-stream module wraps HKDF to provide indexed access to derived keys. All functions return `0` on success.
+
+### Types
+
+### Functions
+
+#### `kstream_init_material`
+
+Initializes key material. Salt is the secret, IKM is the key identifier.
+
+#### `kstream_alloc`
+
+Allocates the key buffer and derives `keys_num` keys of `key_size` bytes each using HKDF-SHA256.
+
+#### `kstream_get_key`
+
+Copies the key at `key_index` into the caller-provided buffer.
+
+#### `kstream_free`
+
+Zeroes all key material (keys buffer, IKM, salt) and frees allocated memory.
+
+
+## Example How key stream can work for W77Q Key Derivation
 
 - **Secret** – A 128-bit OEM secret key provided by the user
 - **WID** – The unique Winbond chip ID read from the chip
 
-HKDF uses the secret as input keying material (**IKM**) and the **WID** as salt to produce a deterministic key stream. Each 128-bit chunk of the output maps to a specific key according to the following **sample** ( oem can change it according to his requirements) layout:
+Key stream will use the secret as input keying material (**IKM**) and the **WID** as salt to produce
+a deterministic key stream. Each 128-bit chunk of the output maps to a specific key
+according to the following **offset mapping** ( oem can change it according to his requirements) layout:
 
 | Offset | Key |
 |--------|-----|
@@ -42,32 +68,4 @@ HKDF uses the secret as input keying material (**IKM**) and the **WID** as salt 
 | 11–18 | Restricted Access Section 0–7 Keys |
 | 19 | Restricted Access Vault Key (Section 8) |
 
-For multi-die configurations the layout repeats per die, offset by `HKDF_W77Q_KEYS_NUM * die`.
-
 The same secret and WID always produce the same keys, while a different WID yields a completely different key set. OEM can change how key stream is cut into keys of course.
-
-## HKDF Core API
-
-The underlying HKDF primitive used by this module, returns `0` on success.:
-
-```c
-int hkdf(  SHAversion whichSha,
-           const unsigned char *salt, int salt_len,
-           const unsigned char *ikm, int ikm_len,
-           const unsigned char *info, int info_len,
-           uint8_t okm[], int okm_len)
-```
-
-
-
-| Parameter | Description |
-|-----------|-------------|
-| `whichSha` | Hash algorithm to use (this module uses `SHA256`) |
-| `salt` | Salt value — the chip **WID** |
-| `salt_len` | Length of the salt (`sizeof(QLIB_WID_T)`) |
-| `ikm` | Input keying material — the OEM **Secret** |
-| `ikm_len` | Length of the IKM (`sizeof(KEY_T)`) |
-| `info` | Optional context/application info (unused, passed as `NULL`) |
-| `info_len` | Length of info (passed as `0`) |
-| `okm` | Output buffer for the derived key stream |
-| `okm_len` | Output length (`sizeof(KEY_T) * keys num * dies num`) |
