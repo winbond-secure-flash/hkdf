@@ -10,9 +10,9 @@ extern "C" {
     
     typedef struct _hkdf_key_material
     {
-        void* ikm;
+        const void* ikm;
         size_t ikm_size;
-        void* salt;
+        const void* salt;
         size_t salt_size;
     } HKDF_KEY_MATERIAL;
 
@@ -25,7 +25,7 @@ extern "C" {
     } HKDF_KSTREAM;
 
     // salt is secret, ikm is key identifier     
-    int kstream_init_material(HKDF_KSTREAM* stream, void* key_id, size_t key_id_size, void* secret, size_t secret_size);
+    int kstream_init(HKDF_KSTREAM* stream, const void* id, size_t id_size, const void* secret, size_t secret_size);
 
     // allocs memory for keys_buffer, keys_num is number of keys to generate, key_size is size of each key
     int kstream_alloc(HKDF_KSTREAM* stream, size_t key_size, int keys_num);
