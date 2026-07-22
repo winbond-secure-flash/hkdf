@@ -132,12 +132,6 @@ int main(void) {
 #include "qlib.h"
 #include "key-stream.h"
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 // the layout of all keys in hkdf output will be: 
 // 0     - dev. master key   |
 // 1 - 9 - full access 0 key | full access 1 key | full access 2 ......| full access 7 key |full access 8 key |
